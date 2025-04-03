@@ -1,6 +1,6 @@
 # STORM for Rubric Generation
 
-**Note:** This document describes an adaptation of the STORM system specifically designed for generating evaluation rubrics, rather than Wikipedia-like articles.
+**Note:** This is an adaptation of the STORM system for generating evaluation rubrics, rather than Wikipedia-like articles.
 
 ## Overview
 
