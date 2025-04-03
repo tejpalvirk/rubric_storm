@@ -1,4 +1,4 @@
-# Rubric-STORM: Automated Evaluation Rubric Generation
+# Rubric-STORM
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) <!-- Choose your license -->
 [![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
