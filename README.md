@@ -1,9 +1,5 @@
 # STORM for Rubric Generation
 
-<p align="center">
-  <img src="../assets/logo.svg" style="width: 25%; height: auto;"> <!-- Assuming logo path relative to main README -->
-</p>
-
 **Note:** This document describes an adaptation of the STORM system specifically designed for generating evaluation rubrics, rather than Wikipedia-like articles.
 
 ## Overview
