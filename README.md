@@ -218,11 +218,7 @@ If you use Rubric-STORM in your research or work, please cite the original STORM
     booktitle = "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)",
     month = jun,
     year = "2024",
-    address = "Mexico City, Mexico",
     publisher = "Association for Computational Linguistics",
-    url = "https://aclanthology.org/2024.naacl-long.347/",
-    doi = "10.18653/v1/2024.naacl-long.347",
-    pages = "6252--6278",
 }
 
 @inproceedings{jiang-etal-2024-unknown,
@@ -236,13 +232,8 @@ If you use Rubric-STORM in your research or work, please cite the original STORM
       Bansal, Mohit  and
       Chen, Yun-Nung",
     booktitle = "Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing",
-    month = nov, # Assuming Nov based on previous EMNLP, adjust if needed
     year = "2024",
-    address = "Miami, Florida, USA", # Check actual location
     publisher = "Association for Computational Linguistics",
-    url = "https://aclanthology.org/2024.emnlp-main.554/", # URL might change
-    doi = "10.18653/v1/2024.emnlp-main.554", # DOI might change
-    pages = "9917--9955", # Page numbers might change
 }
 ```
 (Note: Co-STORM citation included as it builds upon STORM)
