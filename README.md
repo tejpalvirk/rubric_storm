@@ -49,7 +49,7 @@ This system adapts the modular STORM pipeline for rubric generation:
 
 ## Data Structures
 
-The primary output is a `Rubric` object, defined in `knowledge_storm/rubrics/rubric_dataclass.py`. Key components include:
+The primary output is a `Rubric` object, defined in `rubrics/rubric_dataclass.py`. Key components include:
 
 *   **`Rubric`**:
     *   `topic: str`: The overall subject.
@@ -82,10 +82,10 @@ The primary way to use this functionality is via the `RubricRunner` class.
 
 1.  **Import necessary classes:**
     ```python
-    from knowledge_storm.rubrics.engine import RubricRunner, RubricRunnerArguments, RubricLMConfigs
-    from knowledge_storm.lm import LitellmModel # Or your preferred LM class
-    from knowledge_storm.rm import BingSearch # Or your preferred RM class
-    from knowledge_storm.utils import load_api_key
+    from rubrics.engine import RubricRunner, RubricRunnerArguments, RubricLMConfigs
+    from lm import LitellmModel # Or your preferred LM class
+    from rm import BingSearch # Or your preferred RM class
+    from utils import load_api_key
     import os
     ```
 
