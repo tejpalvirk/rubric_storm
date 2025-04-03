@@ -238,5 +238,5 @@ If you use Rubric-STORM in your research or work, please cite the original STORM
 ```
 (Note: Co-STORM citation included as it builds upon STORM)
 
-License
+### License
 This project is licensed under the MIT License. 
