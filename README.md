@@ -1,195 +1,280 @@
-# STORM for Rubric Generation
+Okay, here is a detailed README.md for the standalone rubric_storm GitHub repository, incorporating the plan and code structure we've discussed.
 
-**Note:** This is an adaptation of the STORM system for generating evaluation rubrics, rather than Wikipedia-like articles.
+# Rubric-STORM: Automated Evaluation Rubric Generation
 
-## Overview
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) <!-- Choose your license -->
+[![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+<!-- Add other badges as needed: build status, package version, etc. -->
 
-This module leverages the core principles and architecture of STORM (Synthesis of Topic Outlines through Retrieval and Multi-perspective Question Asking) to automatically generate detailed evaluation rubrics. Instead of producing a factual narrative about a topic, this system generates structured criteria and conditions suitable for guiding downstream LLM-as-a-judge systems in assigning scores to a given set of options.
+**Rubric-STORM** is an LLM system designed to automatically generate detailed evaluation rubrics for a given topic and evaluation context. It adapts the core principles of the original [STORM (Synthesis of Topic Outlines through Retrieval and Multi-perspective Question Asking)](https://github.com/stanford-oval/storm) system from Stanford, shifting the focus from generating Wikipedia-like articles to creating structured, actionable rubrics suitable for guiding LLM-as-a-judge systems or human evaluators.
 
-**Key Differences from STORM-Wiki:**
+The generated rubrics are grounded in information retrieved from external sources (like web search) and consist of specific criteria, conditions with point adjustments (+/- points), and concrete examples, facilitating consistent and detailed evaluations across various domains like products, services, and more.
 
-*   **Input:** Requires both a `topic` and a specific `evaluation_context` (e.g., "Comparing budget smartphones for battery life", "Evaluating customer service chatbot helpfulness").
-*   **Goal:** To produce actionable evaluation criteria, not a comprehensive factual summary.
-*   **Output:** A structured `Rubric` object containing criteria, specific conditions, point adjustments (+/- points), and illustrative examples, rather than a Markdown article.
-*   **Information Focus:** Knowledge curation targets information relevant to evaluation – quality standards, common errors, distinguishing features, benchmarks, and concrete examples of performance levels.
+**Based on:** [STORM Paper (NAACL 2024)](https://arxiv.org/abs/2402.14207) - Please cite the original STORM paper if you use or adapt this work.
 
-The generated rubrics are designed to be:
+## Key Features
 
-*   **Context-Aware:** Tailored to the specific topic and evaluation goal.
-*   **Condition-Based:** Focused on specific, observable attributes or outcomes.
-*   **Actionable:** Provide clear point adjustments (+/-) for each condition.
-*   **Example-Driven:** Include concrete examples to clarify conditions and point assignments.
-*   **Grounded:** Leverage retrieved information (from web search or custom corpora) during generation.
+*   **Context-Aware Rubric Generation:** Creates rubrics tailored to a specific `topic` and `evaluation_context`.
+*   **Condition-Based Structure:** Generates rubrics with specific, observable conditions, each associated with a point delta (+/- points) rather than broad score levels.
+*   **Grounded Examples:** Aims to provide concrete examples for conditions, grounded in retrieved information where possible.
+*   **Multi-Perspective Information Gathering:** Leverages simulated dialogues with different "evaluator" personas to gather diverse information relevant to criteria and conditions.
+*   **Modular Architecture:** Built using `dspy`, allowing for customization of prompts, modules, LMs, and Retrievers.
+*   **Extensible:** Supports various Language Models (via `LitellmModel`) and Retrieval Modules (Search Engines, Vector Stores).
 
-## How it Works
+## How Rubric-STORM Works
 
-This system adapts the modular STORM pipeline for rubric generation:
+Rubric-STORM adapts the STORM pipeline for rubric generation:
 
-1.  **Evaluative Research (Knowledge Curation):**
-    *   Given the `topic` and `evaluation_context`, the system identifies relevant evaluator personas (e.g., "Technical Spec Analyst", "End-User Experience Tester", "Cost-Benefit Analyst").
-    *   It simulates conversations between these personas and a topic expert (grounded in retrieved information).
-    *   Questions focus on identifying key evaluation criteria, specific positive/negative attributes, common pitfalls, differentiating factors, and concrete examples relevant to the evaluation context.
-    *   Search queries target sources like comparison sites, reviews, technical docs, user forums, etc.
+1.  **Information Gathering (Knowledge Curation):**
+    *   Given a `topic` and `evaluation_context` (e.g., "Compare budget smartphones for battery life"), the system identifies relevant evaluator personas (e.g., "Tech Reviewer," "Heavy User," "Budget-Conscious Buyer").
+    *   It simulates conversations between these personas and a topic expert grounded in external sources (web search, documents).
+    *   Questions focus on identifying *evaluation criteria*, *specific positive/negative attributes*, *common pitfalls*, *indicators of quality levels*, and *concrete examples*.
+    *   The expert retrieves information and synthesizes answers.
 
-2.  **Criteria Identification (Outline Generation):**
-    *   Analyzes the curated information to identify the main dimensions or criteria for evaluation (e.g., "Performance", "Usability", "Cost", "Accuracy").
-    *   Generates a list of `RubricCriterion` objects, each with a name and description.
+2.  **Rubric Structure Generation (Criteria Generation):**
+    *   The system analyzes the gathered information to propose key evaluation criteria (dimensions) relevant to the topic and context (e.g., "Battery Performance," "Camera Quality," "Build Quality").
 
-3.  **Condition & Example Generation (Article Generation):**
-    *   For each identified criterion, this stage generates specific, observable conditions.
-    *   For each condition, it:
-        *   Assigns a point delta (+/- points), typically small (+/- 1) unless a larger impact is justified by the curated information.
-        *   Generates concrete examples illustrating the condition and its point consequence, grounded in the retrieved information where possible.
-    *   Populates the `conditions` list within each `RubricCriterion` with `RubricCondition` objects.
+3.  **Rubric Detail Generation (Condition Generation):**
+    *   For each criterion, the system generates specific, observable conditions.
+    *   It assigns point deltas (+/- points, defaulting to +/- 1 unless justified) to each condition based on its perceived impact within the evaluation context.
+    *   It generates concrete examples illustrating each condition and its associated points, grounding them in the gathered information where feasible.
 
-4.  **Rubric Refinement (Article Polishing):**
-    *   Reviews the generated criteria and conditions for clarity, specificity, consistency, and potential overlap.
-    *   Refines point deltas and examples for better alignment with the evaluation context.
-    *   Adds overall instructions for the LLM judge or human evaluator using the rubric (e.g., handling missing information, score interpretation).
+4.  **Rubric Polishing:**
+    *   The system refines the generated rubric for clarity, consistency, and conciseness.
+    *   It checks for overlapping or contradictory conditions and verifies example relevance.
+    *   It adds overall instructions for the evaluator (LLM or human).
 
-## Data Structures
+The final output is a structured `Rubric` object containing the criteria, conditions, point deltas, examples, and instructions.
 
-The primary output is a `Rubric` object, defined in `rubrics/rubric_dataclass.py`. Key components include:
+## Installation
 
-*   **`Rubric`**:
-    *   `topic: str`: The overall subject.
-    *   `evaluation_context: str`: The specific scenario/goal for the evaluation.
-    *   `base_score: int`: The starting score (e.g., 50) before adjustments.
-    *   `overall_instructions: Optional[str]`: Guidance for the evaluator.
-    *   `criteria: List[RubricCriterion]`: The list of evaluation dimensions.
-*   **`RubricCriterion`**:
-    *   `name: str`: Name of the criterion (e.g., "Accuracy").
-    *   `description: str`: What this criterion covers.
-    *   `conditions: List[RubricCondition]`: Specific conditions related to this criterion.
-*   **`RubricCondition`**:
-    *   `description: str`: A specific, observable condition (e.g., "Contains factual inaccuracy verifiable via provided sources").
-    *   `points_delta: int`: Points to add/subtract (e.g., -5).
-    *   `examples: List[str]`: Concrete illustrations (e.g., "Example: Claimed capital is Berlin, but source [1] states Paris. [-5 pts]").
-    *   `explanation: Optional[str]`: Rationale for points or usage notes.
+**1. Using pip (Recommended):**
+```bash
+pip install rubric-storm
+content_copy
+download
+Use code with caution.
+Markdown
+(Note: This assumes the package will be published to PyPI)
 
-The `Rubric` object includes methods (`save_to_json`, `save_to_markdown`) for serialization.
+2. From Source:
 
-## Installation and Setup
+# Clone the repository
+git clone https://github.com/your-username/rubric-storm.git
+cd rubric-storm
 
-This Rubric generation functionality is part of the `knowledge-storm` library.
+# Create and activate a virtual environment (optional but recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 
-1.  **Installation:** Follow the main installation instructions for `knowledge-storm` (e.g., `pip install knowledge-storm` or install from source).
-2.  **API Keys:** Set up necessary API keys in a `secrets.toml` file in your project root, similar to the main STORM setup. This includes keys for your chosen Language Models (e.g., `OPENAI_API_KEY`) and Retrieval Models (e.g., `BING_SEARCH_API_KEY`).
+# Install dependencies
+pip install -r requirements.txt
 
-## Usage
+# Install the package in editable mode
+pip install -e .
+content_copy
+download
+Use code with caution.
+Bash
+Requires Python 3.9 or higher.
 
-The primary way to use this functionality is via the `RubricRunner` class.
+Configuration
+Rubric-STORM requires API keys for Language Models and Retrieval Modules. It's recommended to store these in a secrets.toml file in the root directory of your project.
 
-1.  **Import necessary classes:**
-    ```python
-    from rubrics.engine import RubricRunner, RubricRunnerArguments, RubricLMConfigs
-    from lm import LitellmModel # Or your preferred LM class
-    from rm import BingSearch # Or your preferred RM class
-    from utils import load_api_key
-    import os
-    ```
+Create secrets.toml with the following format:
 
-2.  **Load API Keys:**
-    ```python
-    load_api_key(toml_file_path="secrets.toml")
-    ```
+# ============ Language Model Configurations ============
+# Example for OpenAI / Azure (using LitellmModel)
+OPENAI_API_KEY="your_openai_or_azure_key"
+# If using Azure, specify these:
+# AZURE_API_BASE="your_azure_endpoint"
+# AZURE_API_VERSION="your_api_version"
+# OPENAI_API_TYPE="azure" # Set to "openai" or "azure"
 
-3.  **Configure LMs (`RubricLMConfigs`):**
-    ```python
-    lm_configs = RubricLMConfigs()
-    # Example using LitellmModel (adapt provider/model names as needed)
-    # Use stronger models for generation/polishing
-    lm_kwargs = {"api_key": os.getenv("OPENAI_API_KEY"), "temperature": 0.7} # Example
-    fast_lm = LitellmModel(model="gpt-4o-mini", max_tokens=500, **lm_kwargs)
-    strong_lm = LitellmModel(model="gpt-4o", max_tokens=1500, **lm_kwargs)
+# Example for Anthropic
+# ANTHROPIC_API_KEY="your_anthropic_key"
 
-    lm_configs.set_persona_gen_lm(fast_lm)
-    lm_configs.set_question_asker_lm(fast_lm)
-    lm_configs.set_knowledge_curation_lm(fast_lm)
-    lm_configs.set_criteria_gen_lm(strong_lm)
-    lm_configs.set_condition_gen_lm(strong_lm)
-    lm_configs.set_rubric_polish_lm(strong_lm)
-    ```
+# Example for Groq
+# GROQ_API_KEY="your_groq_key"
 
-4.  **Configure Runner Arguments (`RubricRunnerArguments`):**
-    ```python
-    # Essential: Define the evaluation context clearly
-    eval_context = "Choosing a budget (<$150) coffee maker for ease of use and brew quality."
+# ... add other LM provider keys as needed
 
-    runner_args = RubricRunnerArguments(
-        output_dir="./results/rubrics_output",
-        evaluation_context=eval_context,
-        base_score=50, # Set your desired starting score
-        # Adjust other parameters as needed (max_perspective, search_top_k, etc.)
-        max_conv_turn=3,
-        max_perspective=3,
-        search_top_k=5,
-        max_thread_num=5,
-    )
-    ```
+# ============ Retriever Configurations ============
+# Provide keys for the retriever you intend to use
+BING_SEARCH_API_KEY="your_bing_key"
+YDC_API_KEY="your_you_com_key"
+SERPER_API_KEY="your_serper_dev_key"
+TAVILY_API_KEY="your_tavily_key"
+BRAVE_API_KEY="your_brave_search_key"
+# SEARXNG_API_KEY="your_searxng_key" # Optional for SearXNG
 
-5.  **Configure Retriever:**
-    ```python
-    # Example using Bing Search
-    rm = BingSearch(bing_search_api_key=os.getenv("BING_SEARCH_API_KEY"), k=runner_args.search_top_k)
-    ```
+# Example for Qdrant (if using VectorRM online mode)
+# QDRANT_API_KEY="your_qdrant_cloud_key"
 
-6.  **Initialize and Run `RubricRunner`:**
-    ```python
-    runner = RubricRunner(runner_args, lm_configs, rm)
+# ============ Encoder Configurations (Optional but recommended) ============
+# Needed if using VectorRM or future embedding features
+ENCODER_API_TYPE="openai" # or "azure", etc. Corresponds to LM keys above.
+# AZURE_API_KEY="..." # Encoder might use same or different keys
+# AZURE_API_BASE="..."
+# AZURE_API_VERSION="..."
+content_copy
+download
+Use code with caution.
+Toml
+The load_api_key utility function in the examples loads these into environment variables.
 
-    topic = input("Enter the Topic for the rubric (e.g., 'Budget Coffee Makers'): ")
+Basic Usage Example
+import os
+import logging
+from rubric_storm.rubrics.engine import RubricRunner, RubricRunnerArguments, RubricLMConfigs
+from rubric_storm.lm import LitellmModel # Example using Litellm
+from rubric_storm.rm import BingSearch   # Example using Bing
+from rubric_storm.utils import load_api_key
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Load API keys from secrets.toml
+load_api_key(toml_file_path="secrets.toml")
+
+# 1. Configure Language Models
+lm_configs = RubricLMConfigs()
+# Example: Use GPT-4o-mini for simpler tasks, GPT-4o for complex ones via Litellm
+fast_model_name = "gpt-4o-mini"
+strong_model_name = "gpt-4o"
+common_kwargs = {
+    "api_key": os.getenv("OPENAI_API_KEY"), # Assumes OPENAI_API_TYPE is 'openai' or handled by Litellm
+    "temperature": 0.7,
+    "top_p": 1.0,
+}
+# Add provider specific details if needed via litellm_params for LitellmModel
+
+lm_configs.set_persona_gen_lm(LitellmModel(model=fast_model_name, max_tokens=400, **common_kwargs))
+lm_configs.set_question_asker_lm(LitellmModel(model=fast_model_name, max_tokens=300, **common_kwargs))
+lm_configs.set_knowledge_curation_lm(LitellmModel(model=fast_model_name, max_tokens=1000, **common_kwargs)) # Expert answers
+lm_configs.set_criteria_gen_lm(LitellmModel(model=strong_model_name, max_tokens=500, **common_kwargs))
+lm_configs.set_condition_gen_lm(LitellmModel(model=strong_model_name, max_tokens=1500, **common_kwargs))
+lm_configs.set_rubric_polish_lm(LitellmModel(model=strong_model_name, max_tokens=2000, **common_kwargs))
+
+# 2. Configure Retriever Module
+bing_key = os.getenv("BING_SEARCH_API_KEY")
+if not bing_key:
+    raise ValueError("BING_SEARCH_API_KEY not found in environment variables or secrets.toml")
+rm = BingSearch(bing_search_api_key=bing_key, k=5) # k=5 for potentially more diverse info
+
+# 3. Set Runner Arguments
+topic = "Electric Vehicles (EVs)"
+evaluation_context = "Choosing the best EV for city commuting under $40,000, prioritizing range and charging speed."
+output_directory = "./my_rubric_output"
+
+runner_args = RubricRunnerArguments(
+    output_dir=output_directory,
+    evaluation_context=evaluation_context,
+    base_score=50,
+    max_conv_turn=3,
+    max_perspective=3,
+    search_top_k=5, # Matches RM 'k'
+    max_thread_num=5,
+    max_search_queries_per_turn=3,
+    disable_perspective=False,
+)
+
+# 4. Initialize RubricRunner
+runner = RubricRunner(args=runner_args, lm_configs=lm_configs, rm=rm)
+
+# 5. Run the pipeline
+try:
     runner.run(
         topic=topic,
-        evaluation_context=runner_args.evaluation_context, # Use context from args
-        # Control pipeline stages (defaults are True)
-        # do_research=True,
-        # do_generate_criteria=True,
-        # do_generate_conditions=True,
-        # do_polish_rubric=True
+        evaluation_context=evaluation_context, # Passed again for clarity, used internally via runner_args
+        do_research=True,
+        do_generate_criteria=True,
+        do_generate_conditions=True,
+        do_polish_rubric=True
     )
 
-    # Optional: Call post-run hooks if implemented
+    # 6. Save logs (optional)
     runner.post_run()
-    ```
+    print(f"Rubric generation complete. Output saved in: {runner.output_dir_specific}")
 
-7.  **Example Script:** Refer to `examples/rubric_examples/run_rubric_gpt.py` for a complete runnable example with argument parsing.
+    # 7. Access the final rubric (optional - runner saves it automatically)
+    # final_rubric_path = os.path.join(runner.output_dir_specific, "final_rubric.json")
+    # if os.path.exists(final_rubric_path):
+    #     from rubric_storm.rubrics.rubric_dataclass import Rubric
+    #     final_rubric = Rubric.load_from_json(final_rubric_path)
+    #     print("\n--- Generated Rubric (Markdown Preview) ---")
+    #     print(final_rubric.to_markdown()[:1000] + "...") # Print first 1000 chars
 
-**Expected Output:**
+except Exception as e:
+    logging.exception(f"An error occurred during rubric generation: {e}")
+content_copy
+download
+Use code with caution.
+Python
+Customization
+Rubric-STORM's modular design allows for customization:
 
-The runner will create a directory structure like:
-`./results/rubrics_output/topic_sanitized__context_sanitized/`
-containing:
-*   `conversation_log.json`: Logs from the evaluative research phase.
-*   `raw_search_results.json`: Aggregated search results.
-*   `rubric_criteria_gen.json`: Rubric state after criteria identification.
-*   `rubric_conditions_gen.json`: Rubric state after condition/example generation.
-*   `final_rubric.json`: The final polished rubric in JSON format.
-*   `final_rubric.md`: The final polished rubric in Markdown format for readability.
-*   `run_config.json`: Configuration used for the run.
+Language Models: Use any LM supported by dspy or litellm by configuring RubricLMConfigs with the appropriate dspy.dsp.LM instance (e.g., OllamaClient, ClaudeModel, GroqModel). See rubric_storm/lm.py.
+Retrieval Modules: Use different search engines or vector databases by providing an instance of a dspy.Retrieve module (implementations in rubric_storm/rm.py, e.g., YouRM, SerperRM, VectorRM).
+Prompts & Logic: Modify the behavior by editing the dspy.Signature prompts within the module files located in rubric_storm/rubrics/. For example, adjust GenerateConditionExamples in condition_generation.py to change how examples are generated.
+Pipeline Stages: Modify the RubricRunner.run method in rubric_storm/rubrics/engine.py to change the sequence or logic of pipeline stages.
+Examples
+See the examples/rubric_examples/ directory for runnable scripts demonstrating different configurations:
 
-## Customization
+run_rubric_gpt.py: Example using GPT models via OpenAI or Azure.
+(Add links to other examples as they are created, e.g., using Claude, local models, VectorRM)
+Contribution
+Contributions are welcome! Please feel free to open an issue or submit a pull request for bug fixes, new features, or improved documentation.
 
-The rubric generation pipeline is designed to be modular and customizable:
+Acknowledgement
+This project adapts the core methodology of the STORM system developed by researchers at Stanford University. We are grateful for their foundational work.
 
-*   **Prompts (`dspy.Signature`)**: The core logic resides in the prompts defined within the `dspy.Signature` classes in each module (`persona_generator.py`, `knowledge_curation.py`, `criteria_generation.py`, `condition_generation.py`, `rubric_polish.py`). Modifying these prompts is the primary way to change the system's behavior, criteria focus, condition style, example format, etc.
-*   **Modules (`dspy.Module`)**: You can replace entire modules (e.g., implement a different condition generation strategy) by creating a new class that adheres to the expected input/output and modifying the `RubricRunner` to use it.
-*   **Language Models (`RubricLMConfigs`)**: Easily swap different LMs for different tasks via the `RubricLMConfigs` setters.
-*   **Retrieval Models (`rm`)**: Use any `dspy.Retrieve` compatible module (e.g., `YouRM`, `BingSearch`, `VectorRM` for custom corpora) by passing it to the `RubricRunner`.
-*   **Data Structures (`rubric_dataclass.py`)**: Modify the `Rubric`, `RubricCriterion`, or `RubricCondition` classes if different output structures are needed.
-
-## Citation
-
-If you use this Rubric generation adaptation, please cite the original STORM papers:
-
-```bibtex
-@inproceedings{jiang-etal-2024-unknown,
-    title = "Into the Unknown Unknowns: Engaged Human Learning through Participation in Language Model Agent Conversations",
-    # ... (rest of Co-STORM citation) ...
-}
+If you use Rubric-STORM in your research or work, please cite the original STORM paper:
 
 @inproceedings{shao-etal-2024-assisting,
     title = "Assisting in Writing {W}ikipedia-like Articles From Scratch with Large Language Models",
-    # ... (rest of STORM citation) ...
+    author = "Shao, Yijia  and
+      Jiang, Yucheng  and
+      Kanell, Theodore  and
+      Xu, Peter  and
+      Khattab, Omar  and
+      Lam, Monica",
+    editor = "Duh, Kevin  and
+      Gomez, Helena  and
+      Bethard, Steven",
+    booktitle = "Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)",
+    month = jun,
+    year = "2024",
+    address = "Mexico City, Mexico",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.naacl-long.347/",
+    doi = "10.18653/v1/2024.naacl-long.347",
+    pages = "6252--6278",
 }
+
+@inproceedings{jiang-etal-2024-unknown,
+    title = "Into the Unknown Unknowns: Engaged Human Learning through Participation in Language Model Agent Conversations",
+    author = "Jiang, Yucheng  and
+      Shao, Yijia  and
+      Ma, Dekun  and
+      Semnani, Sina  and
+      Lam, Monica",
+    editor = "Al-Onaizan, Yaser  and
+      Bansal, Mohit  and
+      Chen, Yun-Nung",
+    booktitle = "Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing",
+    month = nov, # Assuming Nov based on previous EMNLP, adjust if needed
+    year = "2024",
+    address = "Miami, Florida, USA", # Check actual location
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.emnlp-main.554/", # URL might change
+    doi = "10.18653/v1/2024.emnlp-main.554", # DOI might change
+    pages = "9917--9955", # Page numbers might change
+}
+content_copy
+download
+Use code with caution.
+Bibtex
+(Note: Co-STORM citation included as it builds upon STORM)
+
+License
+This project is licensed under the MIT License - see the LICENSE file for details. <!-- Make sure to add a LICENSE file -->
