@@ -1,8 +1,8 @@
 # Rubric-STORM
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) <!-- Choose your license -->
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 [![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
-<!-- Add other badges as needed: build status, package version, etc. -->
+
 
 **Rubric-STORM** is an LLM system designed to automatically generate detailed evaluation rubrics for a given topic and evaluation context. It adapts the core principles of the original [STORM (Synthesis of Topic Outlines through Retrieval and Multi-perspective Question Asking)](https://github.com/stanford-oval/storm) system from Stanford, shifting the focus from generating Wikipedia-like articles to creating structured, actionable rubrics suitable for guiding LLM-as-a-judge systems or human evaluators.
 
@@ -46,22 +46,22 @@ The final output is a structured `Rubric` object containing the criteria, condit
 
 ## Installation
 
-## Clone the repository
+### Clone the repository
 git clone https://github.com/your-username/rubric-storm.git
 cd rubric-storm
 
-## Create and activate a virtual environment (optional but recommended)
+### Create and activate a virtual environment (optional but recommended)
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 
-## Install dependencies
+### Install dependencies
 pip install -r requirements.txt
 
-Configuration
+### Configuration 
 Rubric-STORM requires API keys for Language Models and Retrieval Modules. It's recommended to store these in a secrets.toml file in the root directory of your project.
 
 Create secrets.toml with the following format:
-
+```toml
 # ============ Language Model Configurations ============
 # Example for OpenAI / Azure (using LitellmModel)
 OPENAI_API_KEY="your_openai_or_azure_key"
@@ -96,13 +96,11 @@ ENCODER_API_TYPE="openai" # or "azure", etc. Corresponds to LM keys above.
 # AZURE_API_KEY="..." # Encoder might use same or different keys
 # AZURE_API_BASE="..."
 # AZURE_API_VERSION="..."
-content_copy
-download
-Use code with caution.
-Toml
+```
 The load_api_key utility function in the examples loads these into environment variables.
 
-Basic Usage Example
+## Basic Usage Example
+```python
 import os
 import logging
 from rubric_storm.rubrics.engine import RubricRunner, RubricRunnerArguments, RubricLMConfigs
@@ -185,11 +183,8 @@ try:
 
 except Exception as e:
     logging.exception(f"An error occurred during rubric generation: {e}")
-content_copy
-download
-Use code with caution.
-Python
-Customization
+```
+
 Rubric-STORM's modular design allows for customization:
 
 Language Models: Use any LM supported by dspy or litellm by configuring RubricLMConfigs with the appropriate dspy.dsp.LM instance (e.g., OllamaClient, ClaudeModel, GroqModel). See rubric_storm/lm.py.
@@ -204,11 +199,11 @@ run_rubric_gpt.py: Example using GPT models via OpenAI or Azure.
 Contribution
 Contributions are welcome! Please feel free to open an issue or submit a pull request for bug fixes, new features, or improved documentation.
 
-Acknowledgement
+## Acknowledgement
 This project adapts the core methodology of the STORM system developed by researchers at Stanford University. We are grateful for their foundational work.
 
 If you use Rubric-STORM in your research or work, please cite the original STORM paper:
-
+```bibtex
 @inproceedings{shao-etal-2024-assisting,
     title = "Assisting in Writing {W}ikipedia-like Articles From Scratch with Large Language Models",
     author = "Shao, Yijia  and
@@ -249,11 +244,8 @@ If you use Rubric-STORM in your research or work, please cite the original STORM
     doi = "10.18653/v1/2024.emnlp-main.554", # DOI might change
     pages = "9917--9955", # Page numbers might change
 }
-content_copy
-download
-Use code with caution.
-Bibtex
+```
 (Note: Co-STORM citation included as it builds upon STORM)
 
 License
-This project is licensed under the MIT License - see the LICENSE file for details. <!-- Make sure to add a LICENSE file -->
+This project is licensed under the MIT License. 
