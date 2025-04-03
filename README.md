@@ -4,7 +4,7 @@
 
 ## Overview
 
-This module leverages the core principles and architecture of STORM (Synthesis of Topic Outlines through Retrieval and Multi-perspective Question Asking) to automatically generate detailed evaluation rubrics. Instead of producing a factual narrative about a topic, this system generates structured criteria and conditions suitable for guiding downstream LLM-as-a-judge systems or human evaluators in assigning scores to a given set of options.
+This module leverages the core principles and architecture of STORM (Synthesis of Topic Outlines through Retrieval and Multi-perspective Question Asking) to automatically generate detailed evaluation rubrics. Instead of producing a factual narrative about a topic, this system generates structured criteria and conditions suitable for guiding downstream LLM-as-a-judge systems in assigning scores to a given set of options (e.g. products, services, etc.).
 
 **Key Differences from STORM-Wiki:**
 
