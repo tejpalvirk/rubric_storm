@@ -47,15 +47,21 @@ The final output is a structured `Rubric` object containing the criteria, condit
 ## Installation
 
 ### Clone the repository
+```
 git clone https://github.com/your-username/rubric-storm.git
 cd rubric-storm
+```
 
 ### Create and activate a virtual environment (optional but recommended)
+```
 python -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+```
 
 ### Install dependencies
+```
 pip install -r requirements.txt
+```
 
 ### Configuration 
 Rubric-STORM requires API keys for Language Models and Retrieval Modules. It's recommended to store these in a secrets.toml file in the root directory of your project.
