@@ -1,5 +1,3 @@
-Okay, here is a detailed README.md for the standalone rubric_storm GitHub repository, incorporating the plan and code structure we've discussed.
-
 # Rubric-STORM: Automated Evaluation Rubric Generation
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) <!-- Choose your license -->
