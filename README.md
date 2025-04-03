@@ -185,18 +185,18 @@ except Exception as e:
     logging.exception(f"An error occurred during rubric generation: {e}")
 ```
 
-Rubric-STORM's modular design allows for customization:
+### Rubric-STORM's modular design allows for customization:
 
-Language Models: Use any LM supported by dspy or litellm by configuring RubricLMConfigs with the appropriate dspy.dsp.LM instance (e.g., OllamaClient, ClaudeModel, GroqModel). See rubric_storm/lm.py.
-Retrieval Modules: Use different search engines or vector databases by providing an instance of a dspy.Retrieve module (implementations in rubric_storm/rm.py, e.g., YouRM, SerperRM, VectorRM).
-Prompts & Logic: Modify the behavior by editing the dspy.Signature prompts within the module files located in rubric_storm/rubrics/. For example, adjust GenerateConditionExamples in condition_generation.py to change how examples are generated.
-Pipeline Stages: Modify the RubricRunner.run method in rubric_storm/rubrics/engine.py to change the sequence or logic of pipeline stages.
-Examples
-See the examples/rubric_examples/ directory for runnable scripts demonstrating different configurations:
+- Language Models: Use any LM supported by dspy or litellm by configuring RubricLMConfigs with the appropriate dspy.dsp.LM instance (e.g., OllamaClient, ClaudeModel, GroqModel). See rubric_storm/lm.py.
+- Retrieval Modules: Use different search engines or vector databases by providing an instance of a dspy.Retrieve module (implementations in rubric_storm/rm.py, e.g., YouRM, SerperRM, VectorRM).
+- Prompts & Logic: Modify the behavior by editing the dspy.Signature prompts within the module files located in rubric_storm/rubrics/. For example, adjust GenerateConditionExamples in condition_generation.py to change how examples are generated.
+ - Pipeline Stages: Modify the RubricRunner.run method in rubric_storm/rubrics/engine.py to change the sequence or logic of pipeline stages.
 
+### Examples
+See the examples/rubric_examples/ directory for a runnable script:
 run_rubric_gpt.py: Example using GPT models via OpenAI or Azure.
-(Add links to other examples as they are created, e.g., using Claude, local models, VectorRM)
-Contribution
+
+### Contribution
 Contributions are welcome! Please feel free to open an issue or submit a pull request for bug fixes, new features, or improved documentation.
 
 ## Acknowledgement
